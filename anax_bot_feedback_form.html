@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Voice Bot Feedback — ANAX Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #0D1F3C;
+    --navy-mid: #1B3A6B;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --gold: #C8960C;
+    --red: #C0392B;
+    --border: #E2E8F0;
+    --bg: #F7F9FC;
+    --white: #FFFFFF;
+    --text: #1A202C;
+    --muted: #64748B;
+    --success: #27500A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--navy);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--gold);
+  }
+  .header-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo-block { display: flex; align-items: center; gap: 12px; }
+  .logo-circle {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: var(--navy);
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: #fff; line-height: 1.2; }
+  .logo-sub { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 300; }
+  .header-badge {
+    background: rgba(200,150,12,0.15);
+    border: 1px solid rgba(200,150,12,0.3);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ENTITY TABS */
+  .entity-tabs {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 24px 24px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .entity-tab {
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--white);
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .entity-tab:hover { border-color: var(--blue); }
+  .entity-tab.active-ae { border-color: var(--blue); background: var(--blue-light); }
+  .entity-tab.active-com { border-color: var(--green); background: var(--green-light); }
+  .entity-tab-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .entity-tab.active-ae .entity-tab-name { color: var(--navy-mid); }
+  .entity-tab.active-com .entity-tab-name { color: var(--green); }
+  .entity-tab-sub { font-size: 11px; color: var(--muted); }
+  .entity-tab-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block; margin-right: 6px; vertical-align: middle;
+  }
+  .dot-ae { background: var(--blue); }
+  .dot-com { background: var(--green); }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+  }
+
+  .form-panel { display: none; }
+  .form-panel.active { display: block; }
+
+  /* PORTAL CARD */
+  .portal-card {
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    color: #fff;
+  }
+  .portal-card-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .creds-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .cred-chip {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .cred-chip label { color: rgba(255,255,255,0.45); font-weight: 400; }
+  .cred-chip span { color: #fff; font-family: 'DM Mono', monospace; font-size: 11px; }
+  .cred-chip a { color: var(--gold); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 11px; }
+  .steps-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .steps-list li {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5;
+  }
+  .step-num-badge {
+    min-width: 20px; height: 20px; border-radius: 50%;
+    font-size: 10px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .badge-ae-color { background: var(--blue); color: #fff; }
+  .badge-com-color { background: var(--green); color: #fff; }
+  .steps-list li strong { color: #fff; font-weight: 500; }
+
+  /* CALL ID BLOCK */
+  .callid-card {
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 24px;
+    border: 1.5px dashed;
+  }
+  .callid-card-ae { border-color: var(--blue); background: var(--blue-light); }
+  .callid-card-com { border-color: var(--green); background: var(--green-light); }
+  .callid-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .callid-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .callid-icon-ae { background: var(--blue); color: #fff; }
+  .callid-icon-com { background: var(--green); color: #fff; }
+  .callid-label { font-size: 13px; font-weight: 600; }
+  .callid-label-ae { color: var(--navy-mid); }
+  .callid-label-com { color: var(--green); }
+  .callid-note { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+  .callid-input {
+    width: 100%;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid;
+    background: #fff;
+    color: var(--text);
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .callid-input-ae { border-color: #B5D4F4; }
+  .callid-input-ae:focus { border-color: var(--blue); }
+  .callid-input-com { border-color: #C0DD97; }
+  .callid-input-com:focus { border-color: var(--green); }
+
+  /* SECTION */
+  .section-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 28px 0 16px;
+  }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted); white-space: nowrap;
+  }
+
+  /* FIELDS */
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; display: block; }
+  .field-required { color: var(--red); margin-left: 2px; }
+  .field-input {
+    width: 100%; padding: 10px 13px;
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    border: 1.5px solid var(--border);
+    border-radius: 8px; background: #fff; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  .field-input:focus { border-color: var(--blue); }
+  .field-input-com:focus { border-color: var(--green); }
+  textarea.field-input { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select.field-input { cursor: pointer; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* BOT SELECTOR */
+  .bot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bot-card {
+    border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; background: #fff;
+    transition: all 0.15s;
+  }
+  .bot-card:hover { border-color: var(--blue); }
+  .bot-card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .bot-card-tag {
+    font-size: 10px; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .bot-card.sel-ae { border-color: var(--blue); background: var(--blue-light); }
+  .bot-card.sel-ae .bot-card-name { color: var(--navy-mid); }
+  .bot-card.sel-com { border-color: var(--green); background: var(--green-light); }
+  .bot-card.sel-com .bot-card-name { color: var(--green); }
+
+  /* RATING */
+  .rating-wrapper { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+  .rating-btn {
+    width: 42px; height: 42px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px; background: #fff;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+  .rating-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .rating-btn.sel-ae { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .rating-btn.sel-com { background: var(--green); border-color: var(--green); color: #fff; }
+  .rating-desc { font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+  /* SUBMIT */
+  .submit-btn {
+    width: 100%; padding: 14px;
+    font-size: 15px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    border: none; border-radius: 10px;
+    cursor: pointer; margin-top: 28px;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:active { transform: scale(0.99); }
+  .submit-ae { background: var(--navy); color: #fff; }
+  .submit-com { background: var(--green); color: #fff; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+    background: #fff;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    margin-top: 20px;
+  }
+  .success-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin: 0 auto 16px;
+  }
+  .success-icon-ae { background: var(--blue-light); }
+  .success-icon-com { background: var(--green-light); }
+  .success-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .success-callid {
+    margin-top: 16px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    display: inline-block;
+  }
+  .callid-ae { background: var(--blue-light); color: var(--navy-mid); }
+  .callid-com { background: var(--green-light); color: var(--green); }
+
+  /* ERROR STATE */
+  .field-error { border-color: var(--red) !important; }
+  .error-msg { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
+
+  /* LOADER */
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite; margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .two-col, .bot-grid, .entity-tabs { grid-template-columns: 1fr; }
+    .header-badge { display: none; }
+    .main { padding: 16px 16px 48px; }
+    .entity-tabs { padding: 16px 16px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-circle">AC</div>
+      <div>
+        <div class="logo-text">ANAX Capital</div>
+        <div class="logo-sub">AI Voice Bot Feedback Portal</div>
+      </div>
+    </div>
+    <div class="header-badge">Beta Testing Phase</div>
+  </div>
+</div>
+
+<!-- ENTITY SELECTOR -->
+<div class="entity-tabs">
+  <div class="entity-tab active-ae" id="tab-ae" onclick="switchEntity('ae')">
+    <div class="entity-tab-name"><span class="entity-tab-dot dot-ae"></span>ANAX Capital Financial Markets</div>
+    <div class="entity-tab-sub">anaxcapital.ae &nbsp;|&nbsp; SCA Lic. 20200000258</div>
+  </div>
+  <div class="entity-tab" id="tab-com" onclick="switchEntity('com')">
+    <div class="entity-tab-name"><span class="entity-tab-dot dot-com"></span>ANAX Capital Markets LTD</div>
+    <div class="entity-tab-sub">anaxcapitalmarkets.com &nbsp;|&nbsp; Reg. 2025-00168</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ===== AE PANEL ===== -->
+  <div class="form-panel active" id="panel-ae">
+
+    <!-- Portal Instructions -->
+    <div class="portal-card">
+      <div class="portal-card-title">Testing Portal — Credentials & Instructions</div>
+      <div class="creds-row">
+        <div class="cred-chip"><label>Portal</label><a href="https://anaxbatch-calling.vercel.app/" target="_blank">anaxbatch-calling.vercel.app</a></div>
+        <div class="cred-chip"><label>Username</label><span>stumpreet@gmail.com</span></div>
+        <div class="cred-chip"><label>Password</label><span>tumpreet123</span></div>
+      </div>
+      <ol class="steps-list">
+        <li><span class="step-num-badge badge-ae-color">1</span>Open the portal and log in with the credentials above</li>
+        <li><span class="step-num-badge badge-ae-color">2</span>On the right panel, click <strong>Select Agent</strong> and choose your bot</li>
+        <li><span class="step-num-badge badge-ae-color">3</span>Click <strong>Start Test Call</strong></li>
+        <li><span class="step-num-badge badge-ae-color">4</span>A pop-up with a microphone icon will appear — click it to begin</li>
+        <li><span class="step-num-badge badge-ae-color">5</span>Interact naturally as a client would during the call</li>
+        <li><span class="step-num-badge badge-ae-color">6</span>Note the <strong>Current Call ID</strong> shown on the right panel — paste it below</li>
+        <li><span class="step-num-badge badge-ae-color">7</span>End the call and complete this form</li>
+      </ol>
+    </div>
+
+    <!-- Call ID -->
+    <div class="callid-card callid-card-ae">
+      <div class="callid-top">
+        <div class="callid-icon callid-icon-ae">&#128222;</div>
+        <div class="callid-label callid-label-ae">Current Call ID <span class="field-required">*</span></div>
+      </div>
+      <div class="callid-note">Copy and paste the Call ID exactly as shown on the right panel of the portal during your call. Example: <strong style="font-family:'DM Mono',monospace;">GcoDHNMc8NVinfCPe9Gq</strong></div>
+      <input class="callid-input callid-input-ae" type="text" id="ae-callid" placeholder="Paste your Call ID here..." />
+      <div class="error-msg" id="ae-callid-err">Call ID is required</div>
+    </div>
+
+    <!-- Tester Info -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Tester Information</div><div class="section-divider-line"></div></div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Full Name <span class="field-required">*</span></label>
+        <input class="field-input" type="text" id="ae-name" placeholder="Your full name" />
+        <div class="error-msg" id="ae-name-err">Name is required</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Department / Role <span class="field-required">*</span></label>
+        <input class="field-input" type="text" id="ae-role" placeholder="e.g. Sales, Support" />
+        <div class="error-msg" id="ae-role-err">Role is required</div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Email Address <span class="field-required">*</span></label>
+      <input class="field-input" type="email" id="ae-email" placeholder="your@anaxcapital.ae" />
+      <div class="error-msg" id="ae-email-err">Valid email is required</div>
+    </div>
+
+    <!-- Bot Selection -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Bot Tested</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Which bot did you test? <span class="field-required">*</span></label>
+      <div class="bot-grid">
+        <div class="bot-card" id="ae-bot-acq" onclick="selectBot('ae','Acquisition Bot')">
+          <div class="bot-card-name">Acquisition Bot</div>
+          <div class="bot-card-tag">Acquisition | Anaxcapital.ae</div>
+        </div>
+        <div class="bot-card" id="ae-bot-sup" onclick="selectBot('ae','Support & Retention Bot')">
+          <div class="bot-card-name">Support & Retention Bot</div>
+          <div class="bot-card-tag">Support & Retention | Anaxcapital.ae</div>
+        </div>
+      </div>
+      <div class="error-msg" id="ae-bot-err">Please select a bot</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Test Date</label>
+      <input class="field-input" type="date" id="ae-date" />
+    </div>
+
+    <!-- Call Flow -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Call Flow & Navigation</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Was the call flow logical and easy to follow? <span class="field-required">*</span></label>
+      <div class="rating-wrapper" id="ae-flow"></div>
+      <div class="error-msg" id="ae-flow-err">Please rate this field</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Did the bot correctly understand your queries?</label>
+      <div class="rating-wrapper" id="ae-understand"></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Comments on call flow</label>
+      <textarea class="field-input" id="ae-flow-comment" placeholder="Describe any navigation issues, drop-off points or unexpected behaviour..."></textarea>
+    </div>
+
+    <!-- Accuracy -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Bot Responses & Accuracy</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Were the bot's responses accurate and relevant? <span class="field-required">*</span></label>
+      <div class="rating-wrapper" id="ae-accuracy"></div>
+      <div class="error-msg" id="ae-accuracy-err">Please rate this field</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Overall tone and professionalism of the bot</label>
+      <div class="rating-wrapper" id="ae-tone"></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Instances of incorrect or missing responses</label>
+      <textarea class="field-input" id="ae-accuracy-comment" placeholder="List any wrong, incomplete, or confusing responses with timestamps if possible..."></textarea>
+    </div>
+
+    <!-- Overall -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Overall Experience</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Overall satisfaction with this bot <span class="field-required">*</span></label>
+      <div class="rating-wrapper" id="ae-overall"></div>
+      <div class="error-msg" id="ae-overall-err">Please rate this field</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Is this bot ready for live deployment?</label>
+      <select class="field-input" id="ae-ready">
+        <option value="">Select an option</option>
+        <option>Yes — ready to go live</option>
+        <option>Yes — with minor adjustments</option>
+        <option>No — needs significant improvements</option>
+        <option>No — requires complete rework</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Additional suggestions or issues</label>
+      <textarea class="field-input" id="ae-suggestions" placeholder="Any other feedback, edge cases encountered, or improvement ideas..."></textarea>
+    </div>
+
+    <button class="submit-btn submit-ae" id="ae-submit-btn" onclick="submitForm('ae')">Submit Feedback</button>
+    <div class="success-screen" id="ae-success">
+      <div class="success-icon success-icon-ae">&#10003;</div>
+      <div class="success-title">Feedback Submitted!</div>
+      <div class="success-sub">Your feedback for <strong>ANAX Capital Financial Markets</strong> has been recorded in Google Sheets.</div>
+      <div class="success-callid callid-ae" id="ae-success-callid"></div>
+    </div>
+  </div>
+
+  <!-- ===== COM PANEL ===== -->
+  <div class="form-panel" id="panel-com">
+
+    <div class="portal-card">
+      <div class="portal-card-title">Testing Portal — Credentials & Instructions</div>
+      <div class="creds-row">
+        <div class="cred-chip"><label>Portal</label><a href="https://anaxbatch-calling.vercel.app/" target="_blank">anaxbatch-calling.vercel.app</a></div>
+        <div class="cred-chip"><label>Username</label><span>stumpreet@gmail.com</span></div>
+        <div class="cred-chip"><label>Password</label><span>tumpreet123</span></div>
+      </div>
+      <ol class="steps-list">
+        <li><span class="step-num-badge badge-com-color">1</span>Open the portal and log in with the credentials above</li>
+        <li><span class="step-num-badge badge-com-color">2</span>On the right panel, click <strong>Select Agent</strong> and choose your bot</li>
+        <li><span class="step-num-badge badge-com-color">3</span>Click <strong>Start Test Call</strong></li>
+        <li><span class="step-num-badge badge-com-color">4</span>A pop-up with a microphone icon will appear — click it to begin</li>
+        <li><span class="step-num-badge badge-com-color">5</span>Interact naturally as a client would during the call</li>
+        <li><span class="step-num-badge badge-com-color">6</span>Note the <strong>Current Call ID</strong> shown on the right panel — paste it below</li>
+        <li><span class="step-num-badge badge-com-color">7</span>End the call and complete this form</li>
+      </ol>
+    </div>
+
+    <div class="callid-card callid-card-com">
+      <div class="callid-top">
+        <div class="callid-icon callid-icon-com">&#128222;</div>
+        <div class="callid-label callid-label-com">Current Call ID <span class="field-required">*</span></div>
+      </div>
+      <div class="callid-note">Copy and paste the Call ID exactly as shown on the right panel of the portal during your call. Example: <strong style="font-family:'DM Mono',monospace;">GcoDHNMc8NVinfCPe9Gq</strong></div>
+      <input class="callid-input callid-input-com" type="text" id="com-callid" placeholder="Paste your Call ID here..." />
+      <div class="error-msg" id="com-callid-err">Call ID is required</div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Tester Information</div><div class="section-divider-line"></div></div>
+    <div class="two-col">
+      <div class="field-group">
+        <label class="field-label">Full Name <span class="field-required">*</span></label>
+        <input class="field-input" type="text" id="com-name" placeholder="Your full name" />
+        <div class="error-msg" id="com-name-err">Name is required</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Department / Role <span class="field-required">*</span></label>
+        <input class="field-input" type="text" id="com-role" placeholder="e.g. Sales, Support" />
+        <div class="error-msg" id="com-role-err">Role is required</div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Email Address <span class="field-required">*</span></label>
+      <input class="field-input" type="email" id="com-email" placeholder="your@anaxcapitalmarkets.com" />
+      <div class="error-msg" id="com-email-err">Valid email is required</div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Bot Tested</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Which bot did you test? <span class="field-required">*</span></label>
+      <div class="bot-grid">
+        <div class="bot-card" id="com-bot-acq" onclick="selectBot('com','Acquisition Bot')">
+          <div class="bot-card-name">Acquisition Bot</div>
+          <div class="bot-card-tag">Acquisition | Anaxcapitalmarkets.com</div>
+        </div>
+        <div class="bot-card" id="com-bot-sup" onclick="selectBot('com','Support & Retention Bot')">
+          <div class="bot-card-name">Support & Retention Bot</div>
+          <div class="bot-card-tag">Support & Retention | Anaxcapitalmarkets.com</div>
+        </div>
+      </div>
+      <div class="error-msg" id="com-bot-err">Please select a bot</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Test Date</label>
+      <input class="field-input" type="date" id="com-date" />
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Call Flow & Navigation</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Was the call flow logical and easy to follow? <span class="field-required">*</span></label>
+      <div class="rating-wrapper" id="com-flow"></div>
+      <div class="error-msg" id="com-flow-err">Please rate this field</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Did the bot correctly understand your queries?</label>
+      <div class="rating-wrapper" id="com-understand"></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Comments on call flow</label>
+      <textarea class="field-input" id="com-flow-comment" placeholder="Describe any navigation issues, drop-off points or unexpected behaviour..."></textarea>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Bot Responses & Accuracy</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Were the bot's responses accurate and relevant? <span class="field-required">*</span></label>
+      <div class="rating-wrapper" id="com-accuracy"></div>
+      <div class="error-msg" id="com-accuracy-err">Please rate this field</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Overall tone and professionalism of the bot</label>
+      <div class="rating-wrapper" id="com-tone"></div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Instances of incorrect or missing responses</label>
+      <textarea class="field-input" id="com-accuracy-comment" placeholder="List any wrong, incomplete, or confusing responses..."></textarea>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Overall Experience</div><div class="section-divider-line"></div></div>
+    <div class="field-group">
+      <label class="field-label">Overall satisfaction with this bot <span class="field-required">*</span></label>
+      <div class="rating-wrapper" id="com-overall"></div>
+      <div class="error-msg" id="com-overall-err">Please rate this field</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Is this bot ready for live deployment?</label>
+      <select class="field-input" id="com-ready">
+        <option value="">Select an option</option>
+        <option>Yes — ready to go live</option>
+        <option>Yes — with minor adjustments</option>
+        <option>No — needs significant improvements</option>
+        <option>No — requires complete rework</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Additional suggestions or issues</label>
+      <textarea class="field-input" id="com-suggestions" placeholder="Any other feedback, edge cases encountered, or improvement ideas..."></textarea>
+    </div>
+
+    <button class="submit-btn submit-com" id="com-submit-btn" onclick="submitForm('com')">Submit Feedback</button>
+    <div class="success-screen" id="com-success">
+      <div class="success-icon success-icon-com">&#10003;</div>
+      <div class="success-title">Feedback Submitted!</div>
+      <div class="success-sub">Your feedback for <strong>ANAX Capital Markets LTD</strong> has been recorded in Google Sheets.</div>
+      <div class="success-callid callid-com" id="com-success-callid"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ─── CONFIGURATION ────────────────────────────────────────────────
+// STEP 6: Replace this URL with your Google Apps Script Web App URL
+const SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+// ──────────────────────────────────────────────────────────────────
+
+const ratings = {};
+const selectedBots = {};
+const ratingFields = ['flow', 'understand', 'accuracy', 'tone', 'overall'];
+
+function init() {
+  ['ae', 'com'].forEach(entity => {
+    ratingFields.forEach(field => {
+      const container = document.getElementById(`${entity}-${field}`);
+      if (!container) return;
+      const labels = ['Poor', 'Fair', 'Average', 'Good', 'Excellent'];
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'rating-btn';
+        btn.textContent = i;
+        btn.title = labels[i - 1];
+        btn.onclick = () => selectRating(entity, field, i);
+        container.appendChild(btn);
+      }
+      const desc = document.createElement('span');
+      desc.className = 'rating-desc';
+      desc.textContent = '1 = Poor  ·  5 = Excellent';
+      container.appendChild(desc);
+    });
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById(`${entity}-date`).value = today;
+  });
+}
+
+function selectRating(entity, field, val) {
+  if (!ratings[entity]) ratings[entity] = {};
+  ratings[entity][field] = val;
+  const container = document.getElementById(`${entity}-${field}`);
+  container.querySelectorAll('.rating-btn').forEach((btn, idx) => {
+    btn.className = 'rating-btn' + (idx + 1 === val ? ` sel-${entity}` : '');
+  });
+  // Hide error if shown
+  const err = document.getElementById(`${entity}-${field}-err`);
+  if (err) err.style.display = 'none';
+}
+
+function selectBot(entity, botName) {
+  selectedBots[entity] = botName;
+  ['acq', 'sup'].forEach(id => {
+    document.getElementById(`${entity}-bot-${id}`).className = 'bot-card';
+  });
+  const id = botName.includes('Acquisition') ? 'acq' : 'sup';
+  document.getElementById(`${entity}-bot-${id}`).className = `bot-card sel-${entity}`;
+  const err = document.getElementById(`${entity}-bot-err`);
+  if (err) err.style.display = 'none';
+}
+
+function switchEntity(entity) {
+  ['ae', 'com'].forEach(e => {
+    document.getElementById(`tab-${e}`).className = 'entity-tab';
+    document.getElementById(`panel-${e}`).classList.remove('active');
+  });
+  document.getElementById(`tab-${entity}`).className = `entity-tab active-${entity}`;
+  document.getElementById(`panel-${entity}`).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showError(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = show ? 'block' : 'none';
+}
+
+function setFieldError(inputId, errId, show) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    if (show) input.classList.add('field-error');
+    else input.classList.remove('field-error');
+  }
+  showError(errId, show);
+}
+
+function validateForm(entity) {
+  let valid = true;
+
+  const callid = document.getElementById(`${entity}-callid`).value.trim();
+  setFieldError(`${entity}-callid`, `${entity}-callid-err`, !callid);
+  if (!callid) valid = false;
+
+  const name = document.getElementById(`${entity}-name`).value.trim();
+  setFieldError(`${entity}-name`, `${entity}-name-err`, !name);
+  if (!name) valid = false;
+
+  const email = document.getElementById(`${entity}-email`).value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  setFieldError(`${entity}-email`, `${entity}-email-err`, !emailOk);
+  if (!emailOk) valid = false;
+
+  const role = document.getElementById(`${entity}-role`).value.trim();
+  setFieldError(`${entity}-role`, `${entity}-role-err`, !role);
+  if (!role) valid = false;
+
+  if (!selectedBots[entity]) {
+    showError(`${entity}-bot-err`, true);
+    valid = false;
+  }
+
+  ['flow', 'accuracy', 'overall'].forEach(field => {
+    const rated = ratings[entity] && ratings[entity][field];
+    showError(`${entity}-${field}-err`, !rated);
+    if (!rated) valid = false;
+  });
+
+  return valid;
+}
+
+function submitForm(entity) {
+  if (!validateForm(entity)) {
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+    return;
+  }
+
+  const btn = document.getElementById(`${entity}-submit-btn`);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+  const sheetName = entity === 'ae' ? 'ANAX Capital .ae' : 'ANAX Capital Markets .com';
+  const entityLabel = entity === 'ae'
+    ? 'ANAX Capital Financial Markets LLC'
+    : 'ANAX Capital Markets LTD';
+
+  const callId = document.getElementById(`${entity}-callid`).value.trim();
+
+  const payload = {
+    sheet: sheetName,
+    timestamp: new Date().toISOString(),
+    entity: entityLabel,
+    callId: callId,
+    name: document.getElementById(`${entity}-name`).value.trim(),
+    email: document.getElementById(`${entity}-email`).value.trim(),
+    role: document.getElementById(`${entity}-role`).value.trim(),
+    bot: selectedBots[entity],
+    testDate: document.getElementById(`${entity}-date`).value,
+    ratingFlow: ratings[entity].flow || '',
+    ratingUnderstand: ratings[entity].understand || '',
+    ratingAccuracy: ratings[entity].accuracy || '',
+    ratingTone: ratings[entity].tone || '',
+    ratingOverall: ratings[entity].overall || '',
+    flowComment: document.getElementById(`${entity}-flow-comment`).value,
+    accuracyComment: document.getElementById(`${entity}-accuracy-comment`).value,
+    readyForLive: document.getElementById(`${entity}-ready`).value,
+    suggestions: document.getElementById(`${entity}-suggestions`).value,
+  };
+
+  if (SCRIPT_URL === const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycb.../exec') {
+    // Demo mode — show success without actual submission
+    setTimeout(() => showSuccess(entity, callId, btn), 800);
+    return;
+  }
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => showSuccess(entity, callId, btn))
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = 'Submit Feedback';
+    alert('Submission failed. Please check your internet connection and try again.');
+  });
+}
+
+function showSuccess(entity, callId, btn) {
+  btn.style.display = 'none';
+  const successEl = document.getElementById(`${entity}-success`);
+  const callIdEl = document.getElementById(`${entity}-success-callid`);
+  callIdEl.textContent = 'Call ID: ' + callId;
+  successEl.style.display = 'block';
+  successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+init();
+</script>
+</body>
+</html>
